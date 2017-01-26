@@ -3936,7 +3936,7 @@ var NCE = (function ($) {
             html += '<li class="list-group-item skinny-lr no-margins" data-changetype="' + displayType.CSS_CLASS + '">';
             html += '<div class="container-fluid">';
 
-            if (options.hasOwnProperty('compare')) {
+            if (options.hasOwnProperty('compare') && changeType === CHANGETYPE.UPDATED.CODE) {
                 html += '<label style="padding:0;margin:0 10px 0 0;">';
                 html += '<a href="#" class="compare"><kbd>Compare</kbd></a>';
                 html += '</label>';
@@ -4018,7 +4018,7 @@ var NCE = (function ($) {
         branchChanges.sort(sortBranchChanges);
 
         _commitModal.prop('branchChanges', branchChanges);
-        buildUlForCompare(_commitRollbackList, head, branchChanges, {inputClass:'commitCheck', compare:true, action: action});
+        buildUlForCompare(_commitRollbackList, head, branchChanges, {inputClass:'commitCheck', compare:true, html:true, action: action});
         _commitModal.modal('show');
     }
 
@@ -4468,15 +4468,13 @@ var NCE = (function ($) {
     }
     
     function constructDeltaText(delta, isSource) {
-        if ([DELTA.LOC.NCUBE, DELTA.LOC.CELL].indexOf(delta.loc.name) > -1) {
+        var sourceInput, destInput;
+        if (delta.type.name === DELTA.TYPE.UPDATE || delta.loc.name === DELTA.LOC.NCUBE) {
             return getObjectTextArray(isSource ? delta.sourceVal : delta.destVal);
         }
-        if (delta.type.name === DELTA.TYPE.UPDATE) {
-            return getObjectTextArray(isSource ? delta.sourceVal : delta.destVal);
-        }
-        if ([DELTA.LOC.AXIS_META, DELTA.LOC.CELL_META, DELTA.LOC.COLUMN_META, DELTA.LOC.NCUBE_META].indexOf(delta.loc.name) > -1) {
-            var sourceInput = delta.sourceVal ? delta.sourceVal : [];
-            var destInput = delta.destVal ? delta.destVal : [];
+        if ([DELTA.TYPE.ADD, DELTA.TYPE.DELETE].indexOf(delta.type.name) > -1) {
+            sourceInput = delta.sourceVal ? delta.sourceVal : [];
+            destInput = delta.destVal ? delta.destVal : [];
             return getObjectTextArray(isSource ? sourceInput : destInput);
         }
         return getObjectTextArray(isSource ? delta.sourceList : delta.destList);
